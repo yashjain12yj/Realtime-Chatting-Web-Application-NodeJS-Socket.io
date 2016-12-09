@@ -1,0 +1,132 @@
+<!doctype html>
+<html style="height: 100%">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Chat Application</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+      <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+      <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+      <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <![endif]-->
+
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      #messageForm{
+        background: #000; 
+        padding: 3px; 
+        position: fixed; 
+        bottom: 0; 
+        width: 72%; 
+      }
+      #messageForm input,#loginForm input { 
+        border: 0; 
+        padding: 10px; 
+        width: 90%; 
+        margin-right: .5%; 
+      }
+      #messageForm button, #loginForm button{
+         width: 9%; 
+         background: rgb(130, 224, 255); 
+         border: none; 
+         padding: 10px; 
+      }
+      #messages, #onlineUsers { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+      #loginForm{
+        background: #000;
+        padding: 3px;
+        position: fixed;
+        width: 100%;
+      }
+      h3{
+        width: 100%;
+        text-align: center;
+      }
+      #onlineBox{
+        height: 100%;
+      }
+      div .col-lg-3,div .col-lg-9{
+        height: 100%;
+        border: solid;
+      }
+      #onl9usr{
+        font: 20px Helvetica, Arial;
+      }
+      
+    </style>
+  </head>
+  <body style="height: 100%">
+    <div class="container-fluid" style="height: 100%">
+      <div class="row" id="loginBox">
+        <form action="" id="loginForm">
+          <input type="text" name="username" id="ipusername" /><button>Login</button>
+        </form>
+      </div>
+      <div class="row" style="height: 100%">
+        <div class="col-lg-9 col-xs-12 col-md-9" id="chatBox">
+          <ul id="messages"></ul>
+          <form action="" id="messageForm">
+            <input id="message" autocomplete="off" /><button>Send</button>
+          </form>
+        </div>
+        <div class="col-lg-3 col-xs-12 col-md-3" id="onlineBox">
+          <h3>Online Users</h3>
+          <hr>
+          <ul id="onlineUsers"></ul>
+        </div>
+      </div>
+    </div>
+    
+
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script>
+      var socket = io();
+      var username;
+      $('#onlineBox').hide();
+      $('#chatBox').hide();
+      $('#loginForm').submit(function(){
+        username = $('#ipusername').val();
+        socket.emit('new user',username);
+        $('#loginBox').hide();
+        $('#chatBox').show();
+        $('#onlineBox').show();    
+        return false;    
+      });
+
+      $('#messageForm').submit(function(){
+        var val = [$('#message').val(),username]
+        socket.emit('chat message', val);
+        $('#message').val('');
+        return false;
+        });
+
+        socket.on('online users',function(users){
+            var html = '';
+            for (var i = 0; i < users.length; i++) {
+                html += '<li id="onl9usr">'+ users[i] +'</li>';
+            }
+            $('#onlineUsers').html(html);
+        });
+
+      socket.on('chat message', function(msg){
+        $('#messages').append('<li><strong>' + msg[1] + ': </strong>'+ msg[0] +'</li>');
+      });
+    </script>
+  </body>
+</html>
